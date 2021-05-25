@@ -8,7 +8,7 @@
     <div class="row" id="data">
         <div class="col-sm-12">
             <h4>
-                University Promt
+                University Prompt
             </h4>
             <table class="table table-bordered table-hover dataTable">
                 <thead>
@@ -55,6 +55,7 @@
                             <label v-if="sl.isRelated" for="male">[[sl.text]]</label>
                             
                         </td>
+                       
                     </tr>
 
                 </tbody>
@@ -74,6 +75,7 @@
                     <tr class="row">
                         <th>Schools</th>
                         <th v-for="(a, index) in questions">[[ a.description]]</th>
+                        <th>Porcentage</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,6 +85,9 @@
                         </td>
                         <td v-bind:key="sl.isRelated" v-for="sl in a.selected.questionRels" style="width: 305px;">
                             <img src="~/images/apply.png" v-if="sl.isRelated" width="24" />
+                        </td>
+                        <td>
+                            <label>[[a.porcentage]]</label>
                         </td>
                     </tr>
 
@@ -160,19 +165,30 @@
                 var schools = this.selects[0].schools;
                 for (var y = 0; y < schools.length; y++) {
                     var questionstotal = schools[y].questionRels.length;
+                    
+                    var count = 0;
+                    var related = 0;
                     for (var yy = 0; yy < questionstotal; yy++) {
-                        if (schools[y].questionRels[yy].isRelated) {
-                            var id2search = schools[y].questionRels[yy].questionId;
-                            var isrelated = this.relatedquestions.includes(id2search)
-                            if (isrelated) {
-                                if (!this.universities.includes(schools[y].name)) {
-                                    this.selectscalculated.push({
-                                        schools: this.schools,
-                                        selected: schools[y]
-                                    });
-                                    break;
-                                }
+                        if (schools[y].questionRels[yy].isRelated) { // tell me if the question is related to the university
+                            count++;
+                            var id2search = schools[y].questionRels[yy].questionId; // if true 
+                            var isrelated = this.relatedquestions.includes(id2search); // see if it is related to the selected universities
+                            if (isrelated) { // if related, push into the suggested
+                                related++;
                             }
+                        }
+                        
+                    }
+                    if (related > 0) {
+                        if (!this.universities.includes(schools[y].name)) {
+                            var porcentagetext = (related / count) * 100;
+                            var texxt = porcentagetext.toFixed(2) + '%';
+                            this.selectscalculated.push({
+                                schools: this.schools,
+                                selected: schools[y],
+                                porcentage: texxt
+                            });
+
                         }
                     }
                 }
