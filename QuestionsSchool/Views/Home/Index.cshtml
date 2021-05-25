@@ -5,16 +5,45 @@
 
 <section class="content" id="app">
 
-    <div class="row">
+    <div class="row" id="data">
         <div class="col-sm-12">
             <h4>
-                Schools
+                University Promt
+            </h4>
+            <table class="table table-bordered table-hover dataTable">
+                <thead>
+                    <tr class="row">
+                        <th>Universities</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row" v-for="a in selects">
+                        <td align="center" style="width: 505px;">
+                            <v-select :options="a.schools" v-model="a.selected" label="name"></v-select>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+        <a v-on:click="addnew()" class="link" href="#"> Add new</a>
+        <br />
+        <a v-on:click="process()" class="link" href="#">Process Request</a>
+    </div>
+    <div class="row" id="results" style="display:none">
+        <div class="col-sm-12">
+            <h4>
+                Universities you selected
             </h4>
             <table class="table table-bordered table-hover dataTable">
                 <thead>
                     <tr class="row">
                         <th>Schools</th>
-                        <th v-for="(a, index) in questions">Promt [[ index+1 ]]</th>
+                        <th v-for="(a, index) in questions">[[ a.name ]]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,44 +51,48 @@
                         <td align="center" style="width: 305px;">
                             <v-select :options="a.schools" v-model="a.selected" label="name"></v-select>
                         </td>
-                        <td v-bind:key="sl.isRelated" v-for="sl in a.selected.questionRels">
+                        <td v-bind:key="sl.isRelated" v-for="sl in a.selected.questionRels" style="width: 305px;">
                             <img src="~/images/apply.png" v-if="sl.isRelated" width="24" />
                         </td>
                     </tr>
 
                 </tbody>
-                
+
             </table>
 
         </div>
-        <a v-on:click="addnew()" class="link" href="#"> Add new</a>
+
     </div>
-    
-
-
-    <div class="row">
+    <div class="row" id="resultsc" style="display:none">
         <div class="col-sm-12">
             <h4>
-                Promts
+                Schools You May Be Interested In Applying To
             </h4>
             <table class="table table-bordered table-hover dataTable">
                 <thead>
                     <tr class="row">
-                        <th>#</th>
-                        <th>Promt</th>
+                        <th>Schools</th>
+                        <th v-for="(a, index) in questions">[[ ]]</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="row" v-for="(a, index) in questions">
-                        <td align="center">
-                            [[ index+1 ]]
+                    <tr class="row" v-for="a in selectscalculated">
+                        <td align="center" style="width: 305px;">
+                            <v-select :options="a.schools" v-model="a.selected" label="name"></v-select>
                         </td>
-                        <td>[[ a.name ]]</td>
+                        <td v-bind:key="sl.isRelated" v-for="sl in a.selected.questionRels" style="width: 305px;">
+                            <img src="~/images/apply.png" v-if="sl.isRelated" width="24" />
+                        </td>
                     </tr>
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
+
 </section>
 
 
@@ -88,13 +121,68 @@
             schools: [],
             questions: [],
             selects: [],
+            universities: [],
+            relatedquestions: [],
+            selectscalculated: [],
         },
         methods: {
             addnew() {
+                
                 this.selects.push({
                     schools: this.schools,
                     selected: {}
                 });
+                console.log('hola');
+            },
+            process() {
+                
+                var l = this.selects.length;
+                for (var i = 0; i < l; i++) {
+
+                    if (this.selects[i].selected !== undefined) {
+                        var con = this.universities.includes(this.selects[i].selected.name)
+                        if (!con) {
+                            this.universities.push(this.selects[i].selected.name);
+                            for (var x = 0; x < 6; x++) {
+                                var isrel = this.selects[i].selected.questionRels[x].isRelated;
+                                if (isrel) {
+                                    var conrel = this.relatedquestions.includes(this.selects[i].selected.questionRels[x].questionId);
+                                    if (!conrel) {
+                                        this.relatedquestions.push(this.selects[i].selected.questionRels[x].questionId);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var schools = this.selects[0].schools;
+                for (var y = 0; y < schools.length; y++) {
+                    var questionstotal = schools[y].questionRels.length;
+                    for (var yy = 0; yy < questionstotal; yy++) {
+                        if (schools[y].questionRels[yy].isRelated) {
+                            var id2search = schools[y].questionRels[yy].questionId;
+                            var isrelated = this.relatedquestions.includes(id2search)
+                            if (isrelated) {
+                                if (!this.universities.includes(schools[y].name)) {
+                                    this.selectscalculated.push({
+                                        schools: this.schools,
+                                        selected: schools[y]
+                                    });
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                var x = document.getElementById("results");
+                x.style.display = "block";
+                var x = document.getElementById("resultsc");
+                x.style.display = "block";
+                var x = document.getElementById("data");
+                x.style.display = "none";
             },
             getSchools() {
                 //event.preventDefault();
@@ -106,6 +194,7 @@
                             schools: response.data,
                             selected: {}
                         });
+                        
                     })
                     .catch(function (error) {
                         alert(error);
