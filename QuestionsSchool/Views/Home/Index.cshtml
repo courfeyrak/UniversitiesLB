@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<section class="content" id="app">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>
+                Schools
+            </h4>
+            <table class="table table-bordered table-hover dataTable">
+                <thead>
+                    <tr class="row">
+                        <th>Schools</th>
+                        <th v-for="(a, index) in questions">Promt [[ index+1 ]]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row" v-for="a in selects">
+                        <td align="center" style="width: 305px;">
+                            <v-select :options="a.schools" v-model="a.selected" label="name"></v-select>
+                        </td>
+                        <td v-bind:key="sl.isRelated" v-for="sl in a.selected.questionRels">
+                            <img src="~/images/apply.png" v-if="sl.isRelated" width="24" />
+                        </td>
+                    </tr>
+
+                </tbody>
+                
+            </table>
+
+        </div>
+        <a v-on:click="addnew()" class="link" href="#"> Add new</a>
+    </div>
+    
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>
+                Promts
+            </h4>
+            <table class="table table-bordered table-hover dataTable">
+                <thead>
+                    <tr class="row">
+                        <th>#</th>
+                        <th>Promt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row" v-for="(a, index) in questions">
+                        <td align="center">
+                            [[ index+1 ]]
+                        </td>
+                        <td>[[ a.name ]]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+<!-- Vue -->
+<!-- include VueJS first -->
+<script src="https://unpkg.com/vue@latest"></script>
+
+<!-- use the latest vue-select release -->
+<script src="https://unpkg.com/vue-select@latest"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
+
+<!-- or point to a specific vue-select release -->
+<script src="https://unpkg.com/vue-select@3.0.0"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-select@3.0.0/dist/vue-select.css">
+
+<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+
+<script>
+    Vue.component('v-select', VueSelect.VueSelect);
+
+    vue_app = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+            schools: [],
+            questions: [],
+            selects: [],
+        },
+        methods: {
+            addnew() {
+                this.selects.push({
+                    schools: this.schools,
+                    selected: {}
+                });
+            },
+            getSchools() {
+                //event.preventDefault();
+                var app = this;
+                axios.get('Api/GetSchool')
+                    .then(function (response) {
+                        app.schools = response.data;
+                        app.selects.push({
+                            schools: response.data,
+                            selected: {}
+                        });
+                    })
+                    .catch(function (error) {
+                        alert(error);
+                    });
+
+
+            },
+            getQuestions() {
+                var app = this;
+                axios.get('Api/GetQuestions')
+                    .then(function (response) {
+                        app.questions = response.data;
+                    })
+                    .catch(function (error) {
+                        alert(error);
+                    });
+
+            },
+        },
+    });
+
+
+    vue_app.getQuestions();
+    vue_app.getSchools();
+</script>
