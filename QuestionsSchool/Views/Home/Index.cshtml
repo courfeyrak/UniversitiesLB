@@ -43,16 +43,17 @@
                 <thead>
                     <tr class="row">
                         <th>Schools</th>
-                        <th v-for="(a, index) in questions">[[ a.name ]]</th>
+                        <th v-for="(a, index) in questions">[[ index ]]</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody> 
                     <tr class="row" v-for="a in selects">
                         <td align="center" style="width: 305px;">
                             <v-select :options="a.schools" v-model="a.selected" label="name"></v-select>
                         </td>
                         <td v-bind:key="sl.isRelated" v-for="sl in a.selected.questionRels" style="width: 305px;">
-                            <img src="~/images/apply.png" v-if="sl.isRelated" width="24" />
+                            <label v-if="sl.isRelated" for="male">[[sl.text]]</label>
+                            
                         </td>
                     </tr>
 
@@ -72,7 +73,7 @@
                 <thead>
                     <tr class="row">
                         <th>Schools</th>
-                        <th v-for="(a, index) in questions">[[ ]]</th>
+                        <th v-for="(a, index) in questions">[[ a.description]]</th>
                     </tr>
                 </thead>
                 <tbody>

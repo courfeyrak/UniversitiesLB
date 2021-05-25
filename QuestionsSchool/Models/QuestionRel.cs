@@ -9,5 +9,6 @@ namespace QuestionsSchool.Models
     {
         public int QuestionId { get; set; }
         public bool IsRelated { get; set; }
+        public string text { get; set; }
     }
 }

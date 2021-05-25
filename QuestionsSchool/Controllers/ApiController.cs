@@ -48,6 +48,7 @@ namespace QuestionsSchool
                 foreach (var q in quests) {
                     var qr = new QuestionRel();
                     qr.QuestionId = q.Id;
+                    qr.text = q.Description;
                     qr.IsRelated = SchoolQuestionExists(s.Id,q.Id);
                     questionsrels.Add(qr);
                 };
